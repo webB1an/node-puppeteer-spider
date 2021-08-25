@@ -7,3 +7,7 @@ This is a spider project by node and typescript.
 ```shell
 yarn dev
 ```
+
+## error with 403 
+
+need use proxy to fix this problem.
