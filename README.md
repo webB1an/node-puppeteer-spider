@@ -2,6 +2,12 @@
 
 This is a spider project by node and typescript.
 
+## install
+
+```shell
+yarn
+```
+
 ## hot reload typescript with ts-node-dev in development
 
 ```shell
