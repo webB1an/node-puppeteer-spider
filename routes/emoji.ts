@@ -27,7 +27,6 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
   })
   const page: puppeteer.Page = await browser.newPage()
   await page.setUserAgent(faker.internet.userAgent())
-  await page.evaluateOnNewDocument('function(){Object.defineProperty(navigator, "webdriver", {get: () => undefined})}')
 
   // 绑定 console
   await page.on('console', consoleObj => {
