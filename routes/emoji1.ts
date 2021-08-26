@@ -10,9 +10,12 @@ import { sleep } from '../util'
 
 const router: express.Router = express.Router()
 
-router.get('/spider', async(req: express.Request, res: express.Response) => {
-  const URL = 'https://biaoqing233.com/hot'
-  const Selector = '#__layout > div > div.layout.row-between.app-container > div.app-main > div > div > div.row > .col'
+router.get('/spider/:search/:page', async(req: express.Request, res: express.Response) => {
+  // search http://localhost:3000/emoji1/spider/可爱/1
+  // hot https://biaoqing233.com/hot/1
+
+  const URL = req.params.search === 'hot' ? 'https://biaoqing233.com/hot' : `https://biaoqing233.com/search/${req.params.search}/${req.params.page}`
+  const SELECTOR = '#__layout > div > div.layout.row-between.app-container > div.app-main > div > div > div.row > .col'
 
   const browser: puppeteer.Browser = await puppeteer.launch({
     headless: true,
@@ -32,9 +35,9 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
     waitUntil: 'networkidle2'
   })
 
-  await page.waitForSelector(Selector)
+  await page.waitForSelector(SELECTOR)
 
-  const Images: string[] = await page.$$eval(Selector, element => {
+  const Images: string[] = await page.$$eval(SELECTOR, element => {
     return element.map(ele => ele.querySelector('a > img')?.getAttribute('src') || '')
   })
 
@@ -48,6 +51,7 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
       await saveImage(`https:${src}`)
     }
   }
+  console.log('---------------download over---------------')
 
   await page.close()
   await browser.close()

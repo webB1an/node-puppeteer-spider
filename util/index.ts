@@ -2,9 +2,9 @@ type JSON = {
   [propName: string]: string
 }
 
-export async function sleep(): Promise<boolean> {
+export async function sleep(max = 10, min = 1): Promise<boolean> {
   return new Promise(resolve => {
-    const random: number = Math.floor(Math.random() * (10 - 1 + 1) + 1)
+    const random: number = Math.floor(Math.random() * (max - min + 1) + min)
     setTimeout(() => {
       resolve(true)
     }, random * 1000)

@@ -6,7 +6,7 @@ import rq from 'request-promise'
 import sanitize from 'sanitize-filename'
 import faker from 'faker'
 
-import { extension } from '../util'
+import { extension, sleep } from '../util'
 import { Image } from '../interface/emoji'
 
 const router: express.Router = express.Router()
@@ -17,7 +17,7 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
   const RESPONSE_URL = `${URL}/api/search/json?size=100`
 
   const browser: puppeteer.Browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: ['--window-size=1920,1080'],
     defaultViewport: null
   })
@@ -30,13 +30,20 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
     console.log(consoleObj.text())
   })
 
-  page.on('response', async response => {
+  await page.on('response', async response => {
     if (response.url().startsWith(RESPONSE_URL)) {
       if (response.ok()) {
         const json: Image[] = await response.json()
+        console.log('---------------Images---------------', json)
+        let i = 0
         for (const item of json) {
-          await saveImage(`${IMAGE_BASE_URL}${item.path}`)
+          i++
+          if (i < 20) {
+            await sleep(20)
+            await saveImage(`${IMAGE_BASE_URL}${item.path}`)
+          }
         }
+        console.log('---------------download over---------------')
       }
     }
   })
@@ -63,7 +70,12 @@ async function saveImage(url: string) {
     const ext = extension(contentType)
     if (ext) {
       fileName += `.${ext}`
-      writeFileSync(fileName, response.body)
+      try {
+        writeFileSync(fileName, response.body)
+        console.log('---------------fileName---------------', fileName)
+      } catch (error) {
+        console.log('---------------error---------------', error)
+      }
     } else {
       console.error('Cannot detect file extension!')
     }
