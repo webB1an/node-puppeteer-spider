@@ -1,6 +1,6 @@
 # node-movie-spider
 
-This is a spider project by node and typescript.
+A spider project by node and typescript.
 
 ## install
 
