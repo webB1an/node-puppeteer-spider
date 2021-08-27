@@ -1,11 +1,7 @@
 import express from 'express'
 import spider from '../util/spider'
-import { writeFileSync } from 'fs'
-import { basename, join } from 'path'
-import rq from 'request-promise'
-import sanitize from 'sanitize-filename'
 
-import { sleep } from '../util'
+import { sleep, saveSimpleImage } from '../util'
 
 const router: express.Router = express.Router()
 
@@ -35,7 +31,7 @@ router.get('/spider/:search/:page', async(req: express.Request, res: express.Res
     i++
     if (i < 40 && i >= 18) {
       await sleep()
-      await saveImage(`https:${src}`)
+      await saveSimpleImage(`https:${src}`)
     }
   }
   console.log('---------------download over---------------')
@@ -45,18 +41,5 @@ router.get('/spider/:search/:page', async(req: express.Request, res: express.Res
 
   res.send('over')
 })
-
-async function saveImage(url: string): Promise<boolean> {
-  const destination = join(__dirname, '../', 'images')
-  const response = await rq({ url, resolveWithFullResponse: true, encoding: null })
-  const fileName = join(destination, sanitize(basename(url)))
-  try {
-    writeFileSync(fileName, response.body)
-  } catch (error) {
-    console.log('---------------error---------------', error)
-  }
-  console.log('---------------fileName---------------', fileName)
-  return true
-}
 
 export default router
