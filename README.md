@@ -1,6 +1,6 @@
 # node-movie-spider
 
-A spider project by node and typescript.
+node+ts+puppeteer spider
 
 ## install
 
