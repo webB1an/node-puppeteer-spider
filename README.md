@@ -38,4 +38,10 @@ curl http://localhost:3000/one/spider
 curl http://localhost:3000/emoji1/spider
 ```
 
+### download avatar
+
+```shell
+curl http://localhost:3000/avatar/spider/1
+```
+
 
