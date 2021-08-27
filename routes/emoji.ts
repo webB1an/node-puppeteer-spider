@@ -1,12 +1,11 @@
 import express from 'express'
-import puppeteer from 'puppeteer'
 import { writeFileSync } from 'fs'
 import { basename, extname, join } from 'path'
 import rq from 'request-promise'
 import sanitize from 'sanitize-filename'
-import faker from 'faker'
 
 import { extension, sleep } from '../util'
+import spider from '../util/spider'
 import { Image } from '../interface/emoji'
 
 const router: express.Router = express.Router()
@@ -16,19 +15,7 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
   const IMAGE_BASE_URL = `https://image.dbbqb.com/`
   const RESPONSE_URL = `${URL}/api/search/json?size=100`
 
-  const browser: puppeteer.Browser = await puppeteer.launch({
-    headless: true,
-    args: ['--window-size=1920,1080'],
-    defaultViewport: null
-  })
-
-  const page: puppeteer.Page = await browser.newPage()
-  await page.setUserAgent(faker.internet.userAgent())
-
-  // 绑定 console
-  page.on('console', consoleObj => {
-    console.log(consoleObj.text())
-  })
+  const [browser, page] = await spider()
 
   await page.on('response', async response => {
     if (response.url().startsWith(RESPONSE_URL)) {

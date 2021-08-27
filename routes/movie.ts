@@ -3,6 +3,7 @@ import puppeteer from 'puppeteer'
 
 import { Movie } from '../interface/movie'
 import { sleep } from '../util'
+import spider from '../util/spider'
 
 const router: express.Router = express.Router()
 
@@ -83,10 +84,7 @@ async function parsePage(page: puppeteer.Page, url: string): Promise<Movie[]> {
 }
 
 router.get('/spider', async(req: express.Request, res: express.Response) => {
-  // 浏览器实例化
-  const browser: puppeteer.Browser = await puppeteer.launch({ headless: true })
-  // 页面实例化
-  const page: puppeteer.Page = await browser.newPage()
+  const [browser, page] = await spider()
 
   // const movie = await parsePage(page, 'https://ddrk.me/category/anime/')
 
@@ -98,6 +96,7 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
 
   console.log('---------------movie---------------', movie)
 
+  await page.close()
   // 关闭浏览器
   await browser.close()
 

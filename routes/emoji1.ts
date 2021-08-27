@@ -1,10 +1,9 @@
 import express from 'express'
-import puppeteer from 'puppeteer'
+import spider from '../util/spider'
 import { writeFileSync } from 'fs'
 import { basename, join } from 'path'
 import rq from 'request-promise'
 import sanitize from 'sanitize-filename'
-import faker from 'faker'
 
 import { sleep } from '../util'
 
@@ -17,19 +16,7 @@ router.get('/spider/:search/:page', async(req: express.Request, res: express.Res
   const URL = req.params.search === 'hot' ? 'https://biaoqing233.com/hot' : `https://biaoqing233.com/search/${req.params.search}/${req.params.page}`
   const SELECTOR = '#__layout > div > div.layout.row-between.app-container > div.app-main > div > div > div.row > .col'
 
-  const browser: puppeteer.Browser = await puppeteer.launch({
-    headless: true,
-    args: ['--window-size=1920,1080'],
-    defaultViewport: null
-  })
-
-  const page: puppeteer.Page = await browser.newPage()
-  await page.setUserAgent(faker.internet.userAgent())
-
-  // 绑定 console
-  await page.on('console', consoleObj => {
-    console.log(consoleObj.text())
-  })
+  const [browser, page] = await spider()
 
   await page.goto(URL, {
     waitUntil: 'networkidle2'
@@ -43,10 +30,10 @@ router.get('/spider/:search/:page', async(req: express.Request, res: express.Res
 
   console.log('---------------images---------------', Images)
 
-  let i = 0
+  let i = 19
   for (const src of Images) {
     i++
-    if (i < 20) {
+    if (i < 40 && i >= 18) {
       await sleep()
       await saveImage(`https:${src}`)
     }

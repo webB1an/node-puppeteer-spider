@@ -1,5 +1,5 @@
 import express from 'express'
-import puppeteer from 'puppeteer'
+import spider from '../util/spider'
 
 const router: express.Router = express.Router()
 
@@ -7,21 +7,9 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
   const url = 'http://wufazhuce.com/'
   const selector = '#carousel-one > div > div.item.active'
 
-  // 浏览器实例化
-  const browser: puppeteer.Browser = await puppeteer.launch({
-    headless: true,
-    args: ['--window-size=1920,1080'],
-    defaultViewport: null
-  })
-  // 页面实例化
-  const page: puppeteer.Page = await browser.newPage()
+  const [browser, page] = await spider()
 
   await page.goto(url)
-
-  // 绑定 console
-  await page.on('console', consoleObj => {
-    console.log(consoleObj.text())
-  })
 
   // 等待页面元素加载完成
   await page.waitForSelector(selector)
