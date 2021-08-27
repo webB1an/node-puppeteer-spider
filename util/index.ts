@@ -7,7 +7,9 @@ type JSON = {
   [propName: string]: string
 }
 
-export async function sleepTime(delay: number): Promise<boolean> {
+type PromiseType = Promise<boolean>
+
+export async function sleepTime(delay: number): PromiseType {
   return new Promise(resolve => {
     setTimeout(() => {
       resolve(true)
@@ -15,7 +17,7 @@ export async function sleepTime(delay: number): Promise<boolean> {
   })
 }
 
-export async function sleep(max = 10, min = 1): Promise<boolean> {
+export async function sleep(max = 10, min = 1): PromiseType {
   return new Promise(resolve => {
     const random: number = Math.floor(Math.random() * (max - min + 1) + min)
     setTimeout(() => {
@@ -32,7 +34,7 @@ export function extension(contentType: string): string {
   return json[contentType]
 }
 
-export async function saveSimpleImage(url: string, path = 'images'): Promise<boolean> {
+export async function saveSimpleImage(url: string, path = 'images'): PromiseType {
   const destination = join(__dirname, '../', path)
   const response = await rq({ url, resolveWithFullResponse: true, encoding: null })
   const fileName = join(destination, sanitize(basename(url)))
