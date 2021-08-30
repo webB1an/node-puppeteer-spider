@@ -3,7 +3,6 @@ export interface Image {
   width: number;
   id: number;
   height: number;
-  desc: Desc
+  desc: string | null
 }
 
-type Desc = string | null

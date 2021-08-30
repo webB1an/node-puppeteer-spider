@@ -21,6 +21,7 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
     }
   })
 
+  await page.close()
   await browser.close()
 
   console.log('---------------one---------------', one)

@@ -9,20 +9,23 @@ type JSON = {
 
 type PromiseType = Promise<boolean>
 
-export async function sleepTime(delay: number): PromiseType {
+interface Sleep {
+  type: 'random' | 'interval';
+  delay: number;
+  min?: number
+}
+
+export async function sleep(sleep: Sleep): PromiseType {
   return new Promise(resolve => {
+    let delay
+    if (sleep.min) {
+      delay = Math.floor(Math.random() * (sleep.delay - sleep.min + 1) + sleep.min)
+    } else {
+      delay = sleep.delay
+    }
     setTimeout(() => {
       resolve(true)
     }, delay * 1000)
-  })
-}
-
-export async function sleep(max = 10, min = 1): PromiseType {
-  return new Promise(resolve => {
-    const random: number = Math.floor(Math.random() * (max - min + 1) + min)
-    setTimeout(() => {
-      resolve(true)
-    }, random * 1000)
   })
 }
 

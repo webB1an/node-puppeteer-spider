@@ -1,6 +1,6 @@
 import express from 'express'
 import spider from '../util/spider'
-import { sleep, sleepTime, saveSimpleImage } from '../util'
+import { sleep, saveSimpleImage } from '../util'
 
 const router: express.Router = express.Router()
 
@@ -13,10 +13,10 @@ router.get('/spider/:page', async(req: express.Request, res: express.Response) =
   const [browser, page] = await spider()
 
   await page.goto(URL, {
-    waitUntil: 'networkidle2'
+    waitUntil: 'networkidle0'
   })
 
-  await sleepTime(5)
+  await sleep({ type: 'interval', delay: 5 })
 
   const Images: string[] = await page.$$eval(SELECTOR, element => {
     return element.map(ele => ele.querySelector('div > div.mbpho > a > img')?.getAttribute('src') || '')
@@ -25,7 +25,7 @@ router.get('/spider/:page', async(req: express.Request, res: express.Response) =
   let i = 1
   for (const src of Images) {
     if (i <= 10) {
-      await sleep()
+      await sleep({ type: 'random', delay: 10, min: 0 })
       await saveSimpleImage(`${src}`, 'images/cp-avatar')
     }
     i++
@@ -33,7 +33,7 @@ router.get('/spider/:page', async(req: express.Request, res: express.Response) =
 
   console.log('---------------images---------------', Images, Images.length)
 
-  await sleep()
+  await sleep({ type: 'interval', delay: 5 })
 
   await page.close()
   await browser.close()

@@ -15,7 +15,7 @@ router.get('/spider/:search/:page', async(req: express.Request, res: express.Res
   const [browser, page] = await spider()
 
   await page.goto(URL, {
-    waitUntil: 'networkidle2'
+    waitUntil: 'networkidle0'
   })
 
   await page.waitForSelector(SELECTOR)
@@ -30,7 +30,7 @@ router.get('/spider/:search/:page', async(req: express.Request, res: express.Res
   for (const src of Images) {
     i++
     if (i < 40 && i >= 18) {
-      await sleep()
+      await sleep({ type: 'random', delay: 10, min: 1 })
       await saveSimpleImage(`https:${src}`)
     }
   }

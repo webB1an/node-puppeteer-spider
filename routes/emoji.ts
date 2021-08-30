@@ -26,7 +26,7 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
         for (const item of json) {
           i++
           if (i < 20) {
-            await sleep(20)
+            await sleep({ type: 'random', delay: 20, min: 1 })
             await saveImage(`${IMAGE_BASE_URL}${item.path}`)
           }
         }
@@ -36,7 +36,7 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
   })
 
   await page.goto(URL, {
-    waitUntil: 'networkidle2'
+    waitUntil: 'networkidle0'
   })
 
   await page.close()

@@ -42,9 +42,9 @@ async function parsePage(page: puppeteer.Page, url: string): Promise<Movie[]> {
     const result: Movie[] = []
 
     element.forEach(ele => {
-      const posterEle: Element = ele.querySelector('.post-box-image') as Element
-      let poster: string = posterEle.getAttribute('style') as string
-      const match: string[] = poster.match(/.*(https:\/\/[0-9a-zA-Z.\/]*)\);/) || []
+      const posterEle = ele.querySelector('.post-box-image') as Element
+      let poster = posterEle.getAttribute('style') as string
+      const match = poster.match(/.*(https:\/\/[0-9a-zA-Z.\/]*)\);/) || []
 
       if (match.length > 1) {
         poster = match[1]
@@ -68,11 +68,9 @@ async function parsePage(page: puppeteer.Page, url: string): Promise<Movie[]> {
   // 判断下一页是否存在
   // 存在则递归爬取下一页页面
   if (nextSel) {
-    await sleep()
+    await sleep({ type: 'random', delay: 10, min: 1 })
     // 获取下一页 href
-    const href: string = await page.$eval('#main > div.pagination_wrap > nav > div > a.next.page-numbers', item => {
-      return item.getAttribute('href')
-    }) || ''
+    const href = await page.$eval('#main > div.pagination_wrap > nav > div > a.next.page-numbers', item => { return item.getAttribute('href') }) || ''
     if (href) {
       movie = [...movie, ...await parsePage(page, href)]
     }
@@ -85,8 +83,6 @@ async function parsePage(page: puppeteer.Page, url: string): Promise<Movie[]> {
 
 router.get('/spider', async(req: express.Request, res: express.Response) => {
   const [browser, page] = await spider()
-
-  // const movie = await parsePage(page, 'https://ddrk.me/category/anime/')
 
   let movie: Movie[] = []
 
