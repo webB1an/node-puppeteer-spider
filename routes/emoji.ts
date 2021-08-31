@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Router, Request, Response } from 'express'
 import { writeFileSync } from 'fs'
 import { basename, extname, join } from 'path'
 import rq from 'request-promise'
@@ -8,16 +8,16 @@ import { extension, sleep } from '../util'
 import spider from '../util/spider'
 import { Image } from '../interface/emoji'
 
-const router: express.Router = express.Router()
+const router: Router = express.Router()
 
-router.get('/spider', async(req: express.Request, res: express.Response) => {
+router.get('/spider', async(req: Request, res: Response): Promise<Response> => {
   const URL = 'https://www.dbbqb.com'
   const IMAGE_BASE_URL = `https://image.dbbqb.com/`
   const RESPONSE_URL = `${URL}/api/search/json?size=100`
 
   const [browser, page] = await spider()
 
-  await page.on('response', async response => {
+  page.on('response', async response => {
     if (response.url().startsWith(RESPONSE_URL)) {
       if (response.ok()) {
         const json: Image[] = await response.json()
@@ -42,7 +42,7 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
   await page.close()
   await browser.close()
 
-  res.send('over')
+  return res.send('over')
 })
 
 async function saveImage(url: string) {

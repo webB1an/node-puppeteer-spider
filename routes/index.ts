@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Router } from 'express'
 import movie from './movie'
 import one from './one'
 import emoji from './emoji'
@@ -7,7 +7,7 @@ import avatar from './avatar'
 
 import pos from './pos'
 
-const router: express.Router = express.Router()
+const router: Router = express.Router()
 
 router.use('/movie', movie)
 router.use('/one', one)

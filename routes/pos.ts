@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Router, Request, Response } from 'express'
 import spider from '../util/spider'
 import { writeFileSync } from 'fs'
 import { join } from 'path'
@@ -6,9 +6,9 @@ import { join } from 'path'
 import { sleep } from '../util'
 import { ElementHandle } from 'puppeteer'
 
-const router: express.Router = express.Router()
+const router: Router = express.Router()
 
-router.get('/spider', async(req: express.Request, res: express.Response) => {
+router.get('/spider', async(req: Request, res: Response): Promise<Response> => {
   const url = 'http://yunpos.uat.dusto-yc.com/#/dashboard'
   const username = '#app > div > form > div:nth-child(2) > div > div > input'
   const password = '#app > div > form > div:nth-child(3) > div > div > input'
@@ -74,7 +74,7 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
 
   await sleep({ type: 'interval', delay: 2 })
   await browser.close()
-  res.send('over')
+  return res.send('over')
 })
 
 export default router

@@ -1,9 +1,9 @@
-import express from 'express'
+import express, { Router, Request, Response } from 'express'
 import spider from '../util/spider'
 
-const router: express.Router = express.Router()
+const router: Router = express.Router()
 
-router.get('/spider', async(req: express.Request, res: express.Response) => {
+router.get('/spider', async(req: Request, res: Response): Promise<Response> => {
   const url = 'http://wufazhuce.com/'
   const selector = '#carousel-one > div > div.item.active'
 
@@ -16,7 +16,7 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
 
   const one = await page.$eval(selector, element => {
     return {
-      image: (element.querySelector('a > img') as Element).getAttribute('src'),
+      image: (element.querySelector('a > img') as Element).getAttribute('src') || '',
       text: (element.querySelector('div.fp-one-cita-wrapper > div.fp-one-cita > a') as Element).innerHTML
     }
   })
@@ -26,7 +26,7 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
 
   console.log('---------------one---------------', one)
 
-  res.json(one)
+  return res.json(one)
 })
 
 export default router

@@ -1,10 +1,10 @@
-import express from 'express'
+import express, { Router, Request, Response } from 'express'
 import spider from '../util/spider'
 import { sleep, saveSimpleImage } from '../util'
 
-const router: express.Router = express.Router()
+const router: Router = express.Router()
 
-router.get('/spider/:page', async(req: express.Request, res: express.Response) => {
+router.get('/spider/:page', async(req: Request, res: Response): Promise<Response> => {
   // curl http://localhost:3000/avatar/spider/1 limit 0-10
   const CURRENT = req.params.page
   const URL = `https://www.duitang.com/album/?id=68874303#!albumpics-p${CURRENT}`
@@ -37,7 +37,7 @@ router.get('/spider/:page', async(req: express.Request, res: express.Response) =
 
   await page.close()
   await browser.close()
-  res.send('over')
+  return res.send('over')
 })
 
 export default router

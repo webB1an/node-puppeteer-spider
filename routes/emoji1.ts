@@ -1,11 +1,11 @@
-import express from 'express'
+import express, { Router, Request, Response } from 'express'
 import spider from '../util/spider'
 
 import { sleep, saveSimpleImage } from '../util'
 
-const router: express.Router = express.Router()
+const router: Router = express.Router()
 
-router.get('/spider/:search/:page', async(req: express.Request, res: express.Response) => {
+router.get('/spider/:search/:page', async(req: Request, res: Response): Promise<Response> => {
   // search http://localhost:3000/emoji1/spider/可爱/1
   // hot https://biaoqing233.com/hot/1
 
@@ -39,7 +39,7 @@ router.get('/spider/:search/:page', async(req: express.Request, res: express.Res
   await page.close()
   await browser.close()
 
-  res.send('over')
+  return res.send('over')
 })
 
 export default router

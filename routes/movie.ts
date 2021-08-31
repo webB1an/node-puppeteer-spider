@@ -1,11 +1,11 @@
-import express from 'express'
+import express, { Router, Request, Response } from 'express'
 import puppeteer from 'puppeteer'
 
 import { Movie } from '../interface/movie'
 import { sleep } from '../util'
 import spider from '../util/spider'
 
-const router: express.Router = express.Router()
+const router: Router = express.Router()
 
 const urls: string[] = [
   'https://ddrk.me/category/anime/'
@@ -81,7 +81,7 @@ async function parsePage(page: puppeteer.Page, url: string): Promise<Movie[]> {
   return movie
 }
 
-router.get('/spider', async(req: express.Request, res: express.Response) => {
+router.get('/spider', async(req: Request, res: Response): Promise<Response> => {
   const [browser, page] = await spider()
 
   let movie: Movie[] = []
@@ -96,7 +96,7 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
   // 关闭浏览器
   await browser.close()
 
-  res.send('over')
+  return res.send('over')
 })
 
 export default router
