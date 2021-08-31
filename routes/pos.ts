@@ -72,7 +72,7 @@ router.get('/spider', async(req: express.Request, res: express.Response) => {
   const searchSelector = await page.waitForSelector(search) as ElementHandle
   await searchSelector.click()
 
-  await sleep({ type: 'interval', delay: 3 })
+  await sleep({ type: 'interval', delay: 2 })
   await browser.close()
   res.send('over')
 })
