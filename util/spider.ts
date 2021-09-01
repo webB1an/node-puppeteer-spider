@@ -4,9 +4,11 @@ import faker from 'faker'
 export default async function spider(): Promise<[puppeteer.Browser, puppeteer.Page]> {
   // 浏览器实例化
   const browser: puppeteer.Browser = await puppeteer.launch({
-    headless: true,
+    headless: false,
     args: ['--window-size=1920,1080'],
-    defaultViewport: null
+    defaultViewport: null,
+    slowMo: 500,
+    ignoreHTTPSErrors: true
   })
   // 页面实例化
   const page: puppeteer.Page = await browser.newPage()

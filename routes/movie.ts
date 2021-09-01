@@ -1,5 +1,7 @@
 import express, { Router, Request, Response } from 'express'
 import puppeteer from 'puppeteer'
+import { writeFileSync } from 'fs'
+import { join } from 'path'
 
 import { Movie } from '../interface/movie'
 import { sleep } from '../util'
@@ -19,6 +21,34 @@ const urls: string[] = [
   // 'https://ddrk.me/category/documentary/',
   // 'https://ddrk.me/category/variety/'
 ]
+
+router.get('/spider', async(req: Request, res: Response): Promise<Response> => {
+  const [browser, page] = await spider()
+
+  let movies: Movie[] = []
+
+  for (const url of urls) {
+    movies = [...movies, ...await parsePage(page, url)]
+  }
+
+  for (const index in movies) {
+    await sleep({ type: 'random', delay: 10, min: 1 })
+    movies[index].rate = await parsePageRate(page, movies[index].innner)
+  }
+
+  movies = movies.sort((a, b) => a.rate - b.rate)
+
+  console.log('---------------movie---------------', movies)
+
+  const dest = join(__dirname, '../', 'json', 'movies.json')
+  writeFileSync(dest, JSON.stringify(movies, null, '\t'))
+
+  await page.close()
+  // 关闭浏览器
+  await browser.close()
+
+  return res.send('over')
+})
 
 async function parsePage(page: puppeteer.Page, url: string): Promise<Movie[]> {
   console.log('---------------url---------------', url)
@@ -56,7 +86,8 @@ async function parsePage(page: puppeteer.Page, url: string): Promise<Movie[]> {
         posterId: ele.getAttribute('id') || '',
         poster,
         title: ele.querySelector('h2 > a')?.innerHTML || '',
-        innner: ele.getAttribute('data-href') || ''
+        innner: ele.getAttribute('data-href') || '',
+        rate: 0
       })
     })
     return result
@@ -81,22 +112,14 @@ async function parsePage(page: puppeteer.Page, url: string): Promise<Movie[]> {
   return movie
 }
 
-router.get('/spider', async(req: Request, res: Response): Promise<Response> => {
-  const [browser, page] = await spider()
-
-  let movie: Movie[] = []
-
-  for (const url of urls) {
-    movie = [...movie, ...await parsePage(page, url)]
-  }
-
-  console.log('---------------movie---------------', movie)
-
-  await page.close()
-  // 关闭浏览器
-  await browser.close()
-
-  return res.send('over')
-})
+async function parsePageRate(page: puppeteer.Page, url: string): Promise<number> {
+  const selector = '.post-content > div.entry > div.doulist-item > div > div > div.rating > span.rating_nums'
+  await page.goto(url, {
+    waitUntil: 'networkidle0'
+  })
+  const rate = await page.$eval(selector, element => element.innerHTML)
+  console.log('---------------rate---------------', rate)
+  return Number(rate)
+}
 
 export default router
