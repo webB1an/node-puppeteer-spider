@@ -10,3 +10,4 @@ dist
 images/*
 json/*
 test.js
+yarn.lock
