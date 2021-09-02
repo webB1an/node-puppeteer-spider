@@ -35,6 +35,7 @@ curl http://localhost:3000/one/spider
 ### download emoji
 
 ```shell
+curl http://localhost:3000/emoji/spider
 curl http://localhost:3000/emoji1/spider
 ```
 
@@ -42,6 +43,11 @@ curl http://localhost:3000/emoji1/spider
 
 ```shell
 curl http://localhost:3000/avatar/spider/1
+```
+
+### douban top
+```shell
+curl http://localhost:3000/douban/spider
 ```
 
 
