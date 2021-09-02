@@ -9,5 +9,4 @@ logs/*
 dist
 images/*
 json/*
-test.js
 yarn.lock
