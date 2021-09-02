@@ -27,7 +27,7 @@ router.get('/spider/:page', async(req: Request, res: Response): Promise<Response
     await saveSimpleImage(`${src}`, 'images/cp-avatar')
   }
 
-  console.log('---------------images---------------', Images, Images.length)
+  console.log('---------------images---------------', Images, `已经下载${Images.length}条数据`)
 
   console.log('---------------finish---------------')
 

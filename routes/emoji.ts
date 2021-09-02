@@ -10,6 +10,7 @@ import { Image } from '../interface/emoji'
 
 const router: Router = express.Router()
 
+// curl http://localhost:3000/emoji/spider
 router.get('/spider', async(req: Request, res: Response): Promise<Response> => {
   const URL = 'https://www.dbbqb.com'
   const IMAGE_BASE_URL = `https://image.dbbqb.com/`
@@ -24,11 +25,11 @@ router.get('/spider', async(req: Request, res: Response): Promise<Response> => {
         console.log('---------------Images---------------', json)
         let i = 0
         for (const item of json) {
-          i++
           if (i < 20) {
             await sleep({ type: 'random', delay: 20, min: 1 })
             await saveImage(`${IMAGE_BASE_URL}${item.path}`)
           }
+          i++
         }
         console.log('---------------download over---------------')
       }
