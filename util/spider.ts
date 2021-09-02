@@ -1,10 +1,15 @@
 import puppeteer from 'puppeteer'
 import faker from 'faker'
 
+/**
+ * puppeteer
+ * @export
+ * @returns {Promise<[puppeteer.Browser, puppeteer.Page]>}
+ */
 export default async function spider(): Promise<[puppeteer.Browser, puppeteer.Page]> {
   // 浏览器实例化
   const browser: puppeteer.Browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: ['--window-size=1920,1080'],
     defaultViewport: null,
     slowMo: 500,

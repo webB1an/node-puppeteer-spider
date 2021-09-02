@@ -5,7 +5,7 @@ import { sleep, saveSimpleImage } from '../util'
 const router: Router = express.Router()
 
 router.get('/spider/:page', async(req: Request, res: Response): Promise<Response> => {
-  // curl http://localhost:3000/avatar/spider/1 limit 0-10
+  // curl http://localhost:3000/avatar/spider/1
   const CURRENT = req.params.page
   const URL = `https://www.duitang.com/album/?id=68874303#!albumpics-p${CURRENT}`
   const SELECTOR = `#woo-holder > div.woo-swb.woo-cur > div:nth-child(2)>.woo`
@@ -22,18 +22,14 @@ router.get('/spider/:page', async(req: Request, res: Response): Promise<Response
     return element.map(ele => ele.querySelector('div > div.mbpho > a > img')?.getAttribute('src') || '')
   })
 
-  let i = 1
   for (const src of Images) {
-    if (i <= 10) {
-      await sleep({ type: 'random', delay: 10, min: 0 })
-      await saveSimpleImage(`${src}`, 'images/cp-avatar')
-    }
-    i++
+    await sleep({ type: 'random', delay: 10, min: 0 })
+    await saveSimpleImage(`${src}`, 'images/cp-avatar')
   }
 
   console.log('---------------images---------------', Images, Images.length)
 
-  await sleep({ type: 'interval', delay: 5 })
+  console.log('---------------finish---------------')
 
   await page.close()
   await browser.close()

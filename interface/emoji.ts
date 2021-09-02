@@ -1,3 +1,7 @@
+/**
+ * @export
+ * @interface Image
+ */
 export interface Image {
   path: string;
   width: number;

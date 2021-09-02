@@ -15,6 +15,12 @@ interface Sleep {
   min?: number
 }
 
+/**
+ * sleep
+ * @export
+ * @param {Sleep} sleep
+ * @returns {PromiseType}
+ */
 export async function sleep(sleep: Sleep): PromiseType {
   return new Promise(resolve => {
     let delay
@@ -29,6 +35,12 @@ export async function sleep(sleep: Sleep): PromiseType {
   })
 }
 
+/**
+ * get picture ext
+ * @export
+ * @param {string} contentType
+ * @returns {string}
+ */
 export function extension(contentType: string): string {
   const json: JSON = {
     'image/gif': 'gif',
@@ -37,6 +49,13 @@ export function extension(contentType: string): string {
   return json[contentType]
 }
 
+/**
+ * save image
+ * @export
+ * @param {string} url
+ * @param {string} [path='images']
+ * @returns {PromiseType}
+ */
 export async function saveSimpleImage(url: string, path = 'images'): PromiseType {
   const destination = join(__dirname, '../', path)
   const response = await rq({ url, resolveWithFullResponse: true, encoding: null })
