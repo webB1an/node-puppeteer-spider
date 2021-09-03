@@ -1,11 +1,12 @@
 import express, { Router, Request, Response } from 'express'
 import puppeteer from 'puppeteer'
-import { writeFileSync } from 'fs'
-import { join } from 'path'
 
 import { Movie } from '../interface/movie'
+import { Filed, Fileds } from '../interface/csv'
+
 import { sleep } from '../util'
 import spider from '../util/spider'
+import writeCsv from '../util/writeCsv'
 
 const router: Router = express.Router()
 
@@ -36,12 +37,30 @@ router.get('/spider', async(req: Request, res: Response): Promise<Response> => {
     movies[index].rate = await parsePageRate(page, movies[index].innner)
   }
 
-  movies = movies.sort((a, b) => a.rate - b.rate)
+  movies = movies.sort((a, b) => b.rate - a.rate)
 
   console.log('---------------movie---------------', movies)
 
-  const dest = join(__dirname, '../', 'json', 'movies.json')
-  writeFileSync(dest, JSON.stringify(movies, null, '\t'))
+  const fields: Filed[] = [
+    {
+      value: 'posterId',
+      label: '标识'
+    }, {
+      value: 'poster',
+      label: '海报'
+    }, {
+      value: 'title',
+      label: '名称'
+    }, {
+      value: 'innner',
+      label: '详情'
+    }, {
+      value: 'rate',
+      label: '评分'
+    }
+  ]
+
+  await writeCsv<Fileds, Movie[]>({ fields }, movies, 'dark')
 
   await page.close()
   // 关闭浏览器
