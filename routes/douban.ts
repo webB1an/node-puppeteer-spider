@@ -1,7 +1,8 @@
 import express, { Router, Request, Response } from 'express'
 import { Page } from 'puppeteer'
 
-import { Filed, Fileds, Movie } from '../interface/douban'
+import { Movie } from '../interface/douban'
+import { Filed, Fileds } from '../interface/csv'
 
 import spider from '../util/spider'
 import writeCsv from '../util/writeCsv'
