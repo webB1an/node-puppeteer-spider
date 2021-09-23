@@ -1,7 +1,7 @@
 import express, { Router, Request, Response } from 'express'
-import spider from '../util/spider'
 import { writeFileSync } from 'fs'
 import { join } from 'path'
+import spider from '../util/spider'
 
 import { sleep } from '../util'
 import { ElementHandle } from 'puppeteer'

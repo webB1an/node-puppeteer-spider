@@ -1,5 +1,8 @@
 import express, { Router, Request, Response } from 'express'
 import puppeteer from 'puppeteer'
+import { writeFileSync, readFileSync } from 'fs'
+import { join, basename } from 'path'
+import sanitize from 'sanitize-filename'
 
 import { Movie } from '../interface/movie'
 import { Filed, Fileds } from '../interface/csv'
@@ -11,37 +14,42 @@ import writeCsv from '../util/writeCsv'
 const router: Router = express.Router()
 
 const urls: string[] = [
-  'https://ddrk.me/category/anime/'
-  // 'https://ddrk.me/tag/action/',
-  // 'https://ddrk.me/tag/comedy/',
-  // 'https://ddrk.me/tag/romance/',
-  // 'https://ddrk.me/tag/sci-fi/',
-  // 'https://ddrk.me/tag/crime/',
-  // 'https://ddrk.me/tag/mystery/',
-  // 'https://ddrk.me/tag/horror/',
-  // 'https://ddrk.me/category/documentary/',
-  // 'https://ddrk.me/category/variety/'
+  'https://ddrk.me/category/anime/',
+  'https://ddrk.me/tag/action/',
+  'https://ddrk.me/tag/comedy/',
+  'https://ddrk.me/tag/romance/',
+  'https://ddrk.me/tag/sci-fi/',
+  'https://ddrk.me/tag/crime/',
+  'https://ddrk.me/tag/mystery/',
+  'https://ddrk.me/tag/horror/',
+  'https://ddrk.me/category/documentary/',
+  'https://ddrk.me/category/variety/'
 ]
 
 router.get('/spider', async(req: Request, res: Response): Promise<Response> => {
   const [browser, page] = await spider()
 
-  let movies: Movie[] = []
-
   for (const url of urls) {
-    const movie: Movie[] = await parsePage(page, url)
-    console.log('---------------movie---------------', movie, movie.length)
-    movies = [...movies, ...movie]
+    let movie: Movie[] = await parsePage(page, url)
+
+    movie = await setMovieRate(page, movie)
+
+    movie = movie.sort((a, b) => b.rate - a.rate)
+
+    console.log('---------------movie---------------', movie)
+
+    await saveMovieToJson(movie, sanitize(basename(url)))
   }
 
-  for (const index in movies) {
-    await sleep({ type: 'random', delay: 10, min: 1 })
-    movies[index].rate = await parsePageRate(page, movies[index].innner)
-  }
+  await page.close()
+  // 关闭浏览器
+  await browser.close()
 
-  movies = movies.sort((a, b) => b.rate - a.rate)
+  return res.send('over')
+})
 
-  console.log('---------------movie---------------', movies)
+router.get('/write', async(req: Request, res: Response) => {
+  let movies: Movie[] = []
 
   const fields: Filed[] = [
     {
@@ -62,17 +70,25 @@ router.get('/spider', async(req: Request, res: Response): Promise<Response> => {
     }
   ]
 
+  const filenames = urls.map(url => sanitize(basename(url)))
+
+  for (const filename of filenames) {
+    const dest = join(__dirname, '../json', `/${sanitize(basename(filename))}.json`)
+    const filedata = readFileSync(dest, {
+      encoding: 'utf-8'
+    })
+    movies.push(...JSON.parse(filedata))
+  }
+
+  movies = movies.sort((a, b) => b.rate - a.rate)
+
   await writeCsv<Fileds, Movie[]>({ fields }, movies, 'dark')
 
-  await page.close()
-  // 关闭浏览器
-  await browser.close()
-
-  return res.send('over')
+  res.send('write success')
 })
 
 async function parsePage(page: puppeteer.Page, url: string): Promise<Movie[]> {
-  console.log('---------------url---------------', url)
+  console.log('---------------parse page url:---------------', url)
 
   let movie: Movie[] = []
   const selector = '.post-box'
@@ -82,7 +98,7 @@ async function parsePage(page: puppeteer.Page, url: string): Promise<Movie[]> {
     await page.goto(url)
 
     // 绑定 console
-    await page.on('console', consoleObj => {
+    page.on('console', consoleObj => {
       console.log(consoleObj.text())
     })
 
@@ -138,7 +154,7 @@ async function parsePage(page: puppeteer.Page, url: string): Promise<Movie[]> {
 }
 
 async function parsePageRate(page: puppeteer.Page, url: string): Promise<number> {
-  console.log('---------------log rate url---------------', url)
+  console.log('---------------parse page rate url:---------------', url)
   const selector = '.post-content > div.entry > div.doulist-item > div > div > div.rating > span.rating_nums'
   try {
     await page.goto(url, {
@@ -150,6 +166,25 @@ async function parsePageRate(page: puppeteer.Page, url: string): Promise<number>
   } catch (error) {
     console.log('---------------error---------------', error)
     return 0
+  }
+}
+
+async function setMovieRate(page: puppeteer.Page, movie: Movie[]): Promise<Movie[]> {
+  for (const index in movie) {
+    await sleep({ type: 'random', delay: 10, min: 1 })
+    movie[index].rate = await parsePageRate(page, movie[index].innner)
+  }
+  return movie
+}
+
+async function saveMovieToJson(movie: Movie[], name: string): Promise<void> {
+  try {
+    const dest = join(__dirname, '../', 'json')
+    const filename = join(dest, `${name}.json`)
+    writeFileSync(filename, JSON.stringify(movie, null, '\t'))
+    console.log('---------------file write success---------------')
+  } catch (error) {
+    console.log('---------------file write failed---------------', error)
   }
 }
 
