@@ -1,0 +1,14 @@
+# 使用 docker-compose up -d
+# 启动时需要将dev.env 中的 localhost 改成 mongodb
+version: "3"
+services:
+  spider:
+    container_name: puppeteer-spider
+    restart: on-failure
+    build: ./
+    ports:
+      - "3000:3000"
+    volumes:
+      - ~/Desktop/zhihu-spider/images:/app/dist/images
+      - ~/Desktop/zhihu-spider/json:/app/dist/json
+      - ~/Desktop/zhihu-spider/md:/app/dist/md

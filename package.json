@@ -4,10 +4,11 @@
   "description": "",
   "main": "app.ts",
   "scripts": {
-    "start": "tsc && node --unhandled-rejections=strict ./dist/app.js",
+    "start": "node ./dist/app.js",
     "debug": "export DEBUG=* && npm run start",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev --respawn ./app.ts"
+    "dev": "ts-node-dev --respawn ./app.ts",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
