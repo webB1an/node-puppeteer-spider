@@ -19,6 +19,7 @@ export default async function spider(): Promise<[puppeteer.Browser, puppeteer.Pa
   const page: puppeteer.Page = await browser.newPage()
   // 设置虚假user-agent
   await page.setUserAgent(faker.internet.userAgent())
+
   // 绑定 console
   await page.on('console', consoleObj => {
     console.log(consoleObj.text())

@@ -1,7 +1,7 @@
 import { basename, join } from 'path'
 import sanitize from 'sanitize-filename'
 import rq from 'request-promise'
-import { writeFileSync } from 'fs'
+import { writeFileSync, mkdirSync, existsSync } from 'fs'
 
 type JSON = {
   [propName: string]: string
@@ -59,6 +59,11 @@ export function extension(contentType: string): string {
 export async function saveSimpleImage(url: string, path = 'images'): PromiseType {
   const destination = join(__dirname, '../', path)
   const response = await rq({ url, resolveWithFullResponse: true, encoding: null })
+  // console.log('---------------res---------------', response)
+  console.log('---------------des---------------', destination)
+  if (!existsSync(destination)) {
+    mkdirSync(destination, { recursive: true })
+  }
   const fileName = join(destination, sanitize(basename(url)))
   try {
     writeFileSync(fileName, response.body)
@@ -67,4 +72,15 @@ export async function saveSimpleImage(url: string, path = 'images'): PromiseType
   }
   console.log('---------------fileName---------------', fileName)
   return true
+}
+
+export async function saveDataToJson<T>(data: T, name: string): Promise<void> {
+  try {
+    const dest = join(__dirname, '../', 'json')
+    const filename = join(dest, `${name}.json`)
+    writeFileSync(filename, JSON.stringify(data, null, '\t'))
+    console.log('---------------file write success---------------')
+  } catch (error) {
+    console.log('---------------file write failed---------------', error)
+  }
 }
