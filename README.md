@@ -50,4 +50,7 @@ curl http://localhost:3000/avatar/spider/1
 curl http://localhost:3000/douban/spider
 ```
 
-
+### generate zhihu question md
+```shell
+curl http://localhost:3000/zhihu/question/:questionId
+```
