@@ -76,8 +76,11 @@ export async function saveSimpleImage(url: string, path = 'images'): PromiseType
 
 export async function saveDataToJson<T>(data: T, name: string): Promise<void> {
   try {
-    const dest = join(__dirname, '../', 'json')
-    const filename = join(dest, `${name}.json`)
+    const destination = join(__dirname, '../', 'json')
+    if (!existsSync(destination)) {
+      mkdirSync(destination, { recursive: true })
+    }
+    const filename = join(destination, `${name}.json`)
     writeFileSync(filename, JSON.stringify(data, null, '\t'))
     console.log('---------------file write success---------------')
   } catch (error) {

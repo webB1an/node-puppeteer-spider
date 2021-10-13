@@ -1,7 +1,7 @@
 import express, { Router, Request, Response } from 'express'
 import { Page } from 'puppeteer'
 import { join } from 'path'
-import { readFileSync, writeFileSync } from 'fs'
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
 
 import spider from '../util/spider'
 import { sleep, saveDataToJson } from '../util'
@@ -51,8 +51,15 @@ router.get('/generate/:questionId', async(req: Request, res: Response) => {
     }
   }
 
-  const exportDes = join(__dirname, '../', 'md')
-  const filename = join(exportDes, `zhihu-${questionId}.md`)
+  const destination = join(__dirname, '../', 'md')
+  try {
+    if (!existsSync(destination)) {
+      mkdirSync(destination, { recursive: true })
+    }
+  } catch (error) {
+
+  }
+  const filename = join(destination, `zhihu-${questionId}.md`)
   writeFileSync(filename, md)
   console.log('---------------file write success---------------')
 
