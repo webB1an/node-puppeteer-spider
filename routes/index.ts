@@ -6,6 +6,7 @@ import emoji1 from './emoji1'
 import avatar from './avatar'
 import douban from './douban'
 import zhihu from './zhihu'
+import book from './book'
 
 import pos from './pos'
 
@@ -18,6 +19,7 @@ router.use('/emoji1', emoji1)
 router.use('/avatar', avatar)
 router.use('/douban', douban)
 router.use('/zhihu', zhihu)
+router.use('/book', book)
 
 router.use('/pos', pos)
 

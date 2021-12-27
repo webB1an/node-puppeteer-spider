@@ -54,3 +54,15 @@ curl http://localhost:3000/douban/spider
 ```shell
 curl http://localhost:3000/zhihu/question/:questionId
 ```
+
+```js
+await page.goto(url, { waitUntil: 'domcontentloaded' })
+let selectorExists = await page.$('#ourButton')
+
+while (selectorExists === null) {
+  await page.reload({ waitUntil: 'domcontentloaded' })
+  console.log('reload')
+  selectorExists = await page.$('#ourButton')
+}
+await page.click('#ourButton')
+```

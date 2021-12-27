@@ -1,12 +1,21 @@
 import express, { Application } from 'express'
 import http, { Server } from 'http'
 import cors from 'cors'
+import dotenv from 'dotenv'
 
 import router from './routes'
 
+dotenv.config({ path: './dev.env' })
+
 const app: Application = express()
 const server: Server = http.createServer(app)
-const port = 3000
+
+console.log('====================================================================')
+console.log('NODE_ENV', process.env.NODE_ENV)
+console.log('PORT', process.env.PORT)
+console.log('====================================================================')
+
+const port = process.env.PORT
 
 app.use(express.json())
 app.use(cors())
