@@ -7,6 +7,8 @@ import router from './routes'
 
 dotenv.config({ path: './dev.env' })
 
+import './db'
+
 const app: Application = express()
 const server: Server = http.createServer(app)
 
@@ -17,8 +19,9 @@ console.log('===================================================================
 
 const port = process.env.PORT
 
-app.use(express.json())
 app.use(cors())
+app.use(express.urlencoded({ extended: false }))
+app.use(express.json())
 app.use(router)
 
 server.listen(port, (): void => {

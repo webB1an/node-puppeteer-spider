@@ -7,8 +7,7 @@ import avatar from './avatar'
 import douban from './douban'
 import zhihu from './zhihu'
 import book from './book'
-
-import pos from './pos'
+import jd from './jd'
 
 const router: Router = express.Router()
 
@@ -20,7 +19,6 @@ router.use('/avatar', avatar)
 router.use('/douban', douban)
 router.use('/zhihu', zhihu)
 router.use('/book', book)
-
-router.use('/pos', pos)
+router.use('/jd', jd)
 
 export default router

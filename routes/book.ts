@@ -1,32 +1,34 @@
 import express, { Router, Request, Response } from 'express'
 import { join } from 'path'
 import { readFileSync } from 'fs'
+import request from 'request'
 import rq from 'request-promise'
 
-import { sleep, saveDataToJson } from '../util'
+import { sleep } from '../util'
 import { saveAnswerToJson } from '../util/zhihu'
 import writeCsv from '../util/writeCsv'
 
 import { AnswerList } from '../interface/zhihu'
 import { Filed, Fileds } from '../interface/csv'
 
+import bookModel from '../models/book'
+
 interface bookMap {
   [propname: string]: number
 }
 
 interface book {
+  index: number,
   name: string,
   value: number
 }
 
 const router: Router = express.Router()
-// https://www.zhihu.com/question/438708854/answer/1675657296
+// curl http://localhost:3333/book/request/19714813/book
 router.get('/request/:questionId/:type', async(req: Request, res: Response) => {
   const questionId = req.params.questionId
   const type = req.params.type
   let result: AnswerList[] = []
-  const bookMap:bookMap = {}
-  let bookAry: book[] = []
 
   try {
     const dest = join(__dirname, '../json', `/zhihu-${type}-${questionId}.json`)
@@ -37,28 +39,67 @@ router.get('/request/:questionId/:type', async(req: Request, res: Response) => {
     result = JSON.parse(filedata)
   } catch (error) {
     result = await saveAnswerToJson(questionId, type)
-    await saveDataToJson<AnswerList[]>(result, `zhihu-${type}-${questionId}`)
+    // await saveDataToJson<AnswerList[]>(result, `zhihu-${type}-${questionId}`)
   }
 
   for (const answer of result) {
-    const books = await parseSetContent(answer.question.id, answer.id)
-    for (const book in books) {
-      if (!bookMap[book]) {
-        bookMap[book] = 1
-      } else {
-        bookMap[book]++
+    const book = await bookModel.find({ questionId: answer.question.id, answerId: answer.id })
+    if (!book?.length) {
+      const books = await parseSetContent(answer.question.id, answer.id)
+      await bookModel.insertMany([
+        { questionId: answer.question.id, answerId: answer.id, book: books }
+      ])
+      // if (books?.length) {}
+    }
+  }
+
+  console.log('---------------parseSetContent over---------------')
+
+  request(`http://localhost:${process.env.PORT}/book/generate/${questionId}/${type}`)
+})
+
+// curl http://localhost:3333/book/generate/19714813/book
+router.get('/generate/:questionId/:type', async(req: Request, res: Response) => {
+  const questionId = req.params.questionId
+  const type = req.params.type
+  const booksList = await bookModel.find({ questionId })
+  const bookMap:bookMap = {}
+  let bookAry: book[] = []
+
+  for (const books of booksList) {
+    console.log('------------------------------', books.book)
+    if ((books.book ?? '') !== '') {
+      const bookAry = [...new Set(books.book)] as string[]
+      for (const book of bookAry) {
+        if (!bookMap[book]) {
+          bookMap[book] = 1
+        } else {
+          bookMap[book]++
+        }
       }
     }
   }
 
   for (const book in bookMap) {
-    bookAry.push({ name: book, value: bookMap[book] })
+    bookAry.push({ name: book, value: bookMap[book], index: 0 })
   }
 
   bookAry = bookAry.sort((a, b) => b.value - a.value)
 
+  bookAry = bookAry.map((book, index) => {
+    return {
+      index: index + 1,
+      name: book.name,
+      value: book.value
+    }
+  })
+
   // csv base header
   const fields: Filed[] = [
+    {
+      value: 'index',
+      label: '序号'
+    },
     {
       value: 'name',
       label: '书籍名称'
@@ -87,7 +128,6 @@ async function parseSetContent(questionId: number, asnwerId: number) {
     result = ''
     console.log('---------------rq error:---------------', error)
   }
-  console.log('---------------result---------------', result)
   if (result) {
     try {
       book = result.match(/<div class="QuestionAnswer-content" tabindex="0">.*<\/div>/)[0].match(/《[\u4E00-\u9FA5]{1,}》/g)
@@ -98,6 +138,7 @@ async function parseSetContent(questionId: number, asnwerId: number) {
   }
 
   console.log('---------------book---------------', book)
+  console.log('---------------asnwerId---------------', asnwerId)
 
   // try {
   //   const [browser, page] = await spider()
